@@ -1,8 +1,8 @@
 // Configuration file
-// Sensitive information is now loaded from environment variables
-// Make sure to set these environment variables before running the application:
-// - API_KEY: Your API key
-// - DATABASE_URL: Your database connection string
+// Sensitive information is loaded from environment variables
+// IMPORTANT: Set these environment variables before running the application:
+// - API_KEY: Your Stripe API key
+// - DATABASE_URL: Your MongoDB connection string
 
 const config = {
   apiKey: process.env.API_KEY,
@@ -11,13 +11,21 @@ const config = {
 
 // Validate that environment variables are set
 if (!config.apiKey) {
-  console.error('API_KEY environment variable is not set');
-  process.exit(1);
+  throw new Error('API_KEY environment variable is not set. Please set it to your Stripe API key.');
 }
 
 if (!config.databaseUrl) {
-  console.error('DATABASE_URL environment variable is not set');
-  process.exit(1);
+  throw new Error('DATABASE_URL environment variable is not set. Please set it to your MongoDB connection string.');
+}
+
+// Validate API key format (basic check for Stripe-like format)
+if (!/^sk_live_[a-zA-Z0-9]{24,}$/.test(config.apiKey)) {
+  throw new Error('API_KEY environment variable does not appear to be a valid Stripe live API key.');
+}
+
+// Validate database URL format (basic check for MongoDB-like format)
+if (!/^mongodb:\/\/.+@.+\/.+$/.test(config.databaseUrl)) {
+  throw new Error('DATABASE_URL environment variable does not appear to be a valid MongoDB connection string.');
 }
 
 module.exports = config;
